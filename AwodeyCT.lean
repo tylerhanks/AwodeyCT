@@ -226,7 +226,7 @@ structure meet (C : Type u) (P : Preorder C) (a b : C) where
 structure has_all_meets (C : Type u) (P : Preorder C) where
   pf : ∀ (a b : C), ∃ (m : C),
     (P.leq m a ∧ P.leq m b) ∧ (∀ x : C, (P.leq x a) → (P.leq x b) → (P.leq x m))
-
+#check Nat.not_le_eq
 def nat_meet (a b : Nat) : meet Nat NatPreorder a b := {
   m := if a ≤ b then a else b
   lower_bound := by
@@ -255,8 +255,6 @@ def nat_meet (a b : Nat) : meet Nat NatPreorder a b := {
 }
 
 #eval (nat_meet 5 6).m
-
---open meet
 
 theorem nat_all_meets : has_all_meets Nat NatPreorder := {
   pf := by
@@ -319,10 +317,62 @@ theorem natmod4_all_meets : has_all_meets Nat NatMod4Preorder := {
 
     constructor
     intros a b-/
-    
-    
-    
-    
-
 
 end PreorderCats
+
+-- Heyting algebra of propositional provability 
+section IPL
+
+/-inductive typ where
+  | ttrue
+  | tfalse-/
+
+inductive prop where
+  | T : prop
+  | F : prop
+  --| var : String → prop
+  | p_or : prop → prop → prop
+  | p_and : prop → prop → prop
+  | p_impl : prop → prop → prop
+
+open prop
+def Γ_t := List (prop × Bool)
+section
+set_option hygiene false
+local notation:10 Γ " ⊢ " p " : " b => judgement Γ p b
+
+inductive judgement : Γ_t → prop → Bool → Prop where
+  | true_i : ∀ Γ : Γ_t, Γ ⊢ T : true
+  | and_i : ∀ (Γ : Γ_t) (A B : prop), 
+      (Γ ⊢ A : true) → (Γ ⊢ B : true) → (Γ ⊢ (p_and A B) : true)
+  | and_e1 : ∀ (Γ : Γ_t) (A B : prop),
+      (Γ ⊢ (p_and A B) : true) → (Γ ⊢ A : true)
+  | and_e2 : ∀ (Γ : Γ_t) (A B : prop),
+      (Γ ⊢ (p_and A B) : true) → (Γ ⊢ B : true)
+  | impl_i : ∀ (Γ : Γ_t) (A B : prop),
+      ((A, true)::Γ ⊢ B : true) → (Γ ⊢ (p_impl A B) : true)
+  | impl_e : ∀ (Γ : Γ_t) (A B : prop),
+      (Γ ⊢ (p_impl A B) : true) → (Γ ⊢ A : true) → (Γ ⊢ B : true)
+  | false_e : ∀ (Γ : Γ_t) (A : prop), (Γ ⊢ F : true) → (Γ ⊢ A : true)
+  | or_i1 : ∀ (Γ : Γ_t) (A B : prop), (Γ ⊢ A : true) → (Γ ⊢ (p_or A B) : true)
+  | or_i2 : ∀ (Γ : Γ_t) (A B : prop), (Γ ⊢ B : true) → (Γ ⊢ (p_or A B) : true)
+  | or_e : ∀ (Γ : Γ_t) (A B C : prop),
+      (Γ ⊢ (p_or A B) : true) → 
+      ((A, true)::Γ ⊢ C : true) → 
+      ((B, true)::Γ ⊢ C : true) → (Γ ⊢ C : true)
+
+end
+
+notation:10 Γ " ⊢ " p " : " b => judgement Γ p b
+
+end IPL
+
+section AlgCorrectness
+
+#check Applicative
+def list_max (l : List Nat) : Nat := 
+  List.foldl (fun (max el : Nat) => if max ≤ el then el else max) 0 l
+
+#eval list_max [5,7,12,2,4]
+
+end AlgCorrectness
