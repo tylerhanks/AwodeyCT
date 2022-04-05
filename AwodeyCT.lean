@@ -157,7 +157,7 @@ class Preorder (Ob : Type u) where
   leq : Ob → Ob → Prop
   leq_ref : ∀ a : Ob, leq a a
   leq_trans : ∀ a b c : Ob, (leq a b) → (leq b c) → (leq a c)
-  leq_decidable : ∀ a b : Ob, Decidable (leq a b)
+  --leq_decidable : ∀ a b : Ob, Decidable (leq a b)
 
 instance NatPreorder : Preorder Nat where
   leq := Nat.le
@@ -165,9 +165,9 @@ instance NatPreorder : Preorder Nat where
   leq_trans := by 
     simp
     apply Nat.le_trans
-  leq_decidable a b := by
+  /-leq_decidable a b := by
     simp
-    apply Nat.decLe
+    apply Nat.decLe-/
 
 instance NatMod4Preorder : Preorder Nat where
   leq a b := a / 4 ≤ b / 4
@@ -175,9 +175,9 @@ instance NatMod4Preorder : Preorder Nat where
   leq_trans a b c := by
     simp
     apply Nat.le_trans
-  leq_decidable a b := by
+  /-leq_decidable a b := by
     simp
-    apply Nat.decLe
+    apply Nat.decLe-/
 
 #check Nat.le
 
@@ -361,9 +361,35 @@ inductive judgement : Γ_t → prop → Bool → Prop where
       ((A, true)::Γ ⊢ C : true) → 
       ((B, true)::Γ ⊢ C : true) → (Γ ⊢ C : true)
 
+  -- structural rules
+  | entailment_refl : ∀ (Γ : Γ_t) (A : prop), (A, true)::Γ ⊢ A : true
+
 end
 
 notation:10 Γ " ⊢ " p " : " b => judgement Γ p b
+
+
+
+instance : Preorder prop where
+  leq A B := ∀ Γ : Γ_t, Γ ⊢ (p_impl A B) : true
+  leq_ref := by
+    intro A Γ
+    apply judgement.impl_i
+    apply judgement.entailment_refl
+  leq_trans := by
+    intro A B C h1 h2 Γ
+    apply judgement.impl_i
+    let h1 := h1 Γ
+    --let h2 := h2 Γ
+    apply judgement.impl_i h1
+
+
+
+
+
+
+
+
 
 end IPL
 
