@@ -311,6 +311,9 @@ end PreorderCats
 -- Category of Binary relations between types
 section CatRel
 
+def rel := Type u
+--instance : inhabited rel := by unfold rel;
+
 instance Rel : Category (Type u) where
   hom A B := A → B → Prop
   id A := fun (a b : A) => a = b
@@ -318,8 +321,8 @@ instance Rel : Category (Type u) where
   comp_assoc := by
     simp
     intro A B C D f g h
+    --have a : A. TODO: I think this proof requires that types are inhabited
     sorry
-
   l_unit := by
     simp
     intro A B f
